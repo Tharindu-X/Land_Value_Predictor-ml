@@ -51,28 +51,28 @@ class LandPricePredictor:
         model_path = os.path.join(MODELS_DIR, "best_model.pkl")
         if not os.path.exists(model_path):
             raise FileNotFoundError(
-                f"❌ Trained model not found at {model_path}\n"
+                f"ERROR: Trained model not found at {model_path}\n"
                 f"Please run train_model.py first!"
             )
         
         self.model = joblib.load(model_path)
-        print(f"✅ Model loaded: {type(self.model).__name__}")
+        print(f"Model loaded: {type(self.model).__name__}")
         
         # Load scaler
         scaler_path = os.path.join(MODELS_DIR, "scaler.pkl")
         if not os.path.exists(scaler_path):
-            raise FileNotFoundError(f"❌ Scaler not found at {scaler_path}")
+            raise FileNotFoundError(f"ERROR: Scaler not found at {scaler_path}")
         
         self.scaler = joblib.load(scaler_path)
-        print(f"✅ Scaler loaded")
+        print(f"Scaler loaded")
         
         # Load encoder
         encoder_path = os.path.join(MODELS_DIR, "encoder.pkl")
         if not os.path.exists(encoder_path):
-            raise FileNotFoundError(f"❌ Encoder not found at {encoder_path}")
+            raise FileNotFoundError(f"ERROR: Encoder not found at {encoder_path}")
         
         self.encoder = joblib.load(encoder_path)
-        print(f"✅ Encoder loaded")
+        print(f"Encoder loaded")
         
         # Load historical data
         csv_path = os.path.join(DATA_DIR, "katunayake_land_prices.csv")
@@ -82,7 +82,7 @@ class LandPricePredictor:
             csv_path = os.path.join(PROJECT_ROOT, "katunayake_land_prices.csv")
         
         _, _, self.df, _, _ = load_and_preprocess(csv_path, add_features=True)
-        print(f"✅ Historical data loaded ({len(self.df)} records)\n")
+        print(f"Historical data loaded ({len(self.df)} records)\n")
     
     
     def _calculate_confidence_interval(self, area_encoded, predict_year):
@@ -144,7 +144,7 @@ class LandPricePredictor:
         
         # Warning for far-future predictions (no hard limit)
         if predict_year > DATA_MAX_YEAR + 15:
-            print(f"\n⚠️  EXTREME EXTRAPOLATION WARNING:")
+            print(f"\nWARNING - EXTREME EXTRAPOLATION:")
             print(f"   Predicting {predict_year - DATA_MAX_YEAR} years beyond training data.")
             print(f"   Accuracy significantly decreases with longer time horizons.")
             print(f"   Use these predictions with extreme caution!\n")
@@ -371,7 +371,7 @@ class LandPricePredictor:
         
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
-            print(f"📊 Plot saved to: {save_path}")
+            print(f"Plot saved to: {save_path}")
         else:
             plt.show()
         
@@ -382,17 +382,17 @@ def print_prediction_report(result):
     """Print formatted prediction report"""
     
     print("\n" + "="*80)
-    print("📊 LAND PRICE PREDICTION REPORT")
+    print("LAND PRICE PREDICTION REPORT")
     print("="*80)
     
-    print(f"\n📍 Location: {result['area_name'].replace('_', ' ').title()}")
-    print(f"📅 Prediction Year: {result['predict_year']}")
+    print(f"\nLocation: {result['area_name'].replace('_', ' ').title()}")
+    print(f"Prediction Year: {result['predict_year']}")
     
     if result['is_extrapolation']:
-        print(f"⚠️  EXTRAPOLATION WARNING: {result['extrapolation_years']} years beyond training data")
+        print(f"WARNING - EXTRAPOLATION: {result['extrapolation_years']} years beyond training data")
         print(f"   Reliability Score: {result['reliability_score']}%")
     
-    print(f"\n💰 PRICE PREDICTION:")
+    print(f"\nPRICE PREDICTION:")
     print(f"   Predicted Price per Perch: Rs. {result['predicted_price']:,.2f}")
     
     if result['confidence_lower'] and result['confidence_upper']:
@@ -400,7 +400,7 @@ def print_prediction_report(result):
         print(f"      Lower Bound: Rs. {result['confidence_lower']:,.2f}")
         print(f"      Upper Bound: Rs. {result['confidence_upper']:,.2f}")
     
-    print(f"\n📈 CONTEXT:")
+    print(f"\nCONTEXT:")
     print(f"   Latest Known Price ({result['latest_year']}): Rs. {result['latest_price']:,.2f}")
     
     if result['predict_year'] > result['latest_year']:
@@ -413,22 +413,22 @@ def print_investment_report(result):
     """Print formatted investment analysis report"""
     
     print("\n" + "="*80)
-    print("💼 INVESTMENT ANALYSIS REPORT")
+    print("INVESTMENT ANALYSIS REPORT")
     print("="*80)
     
-    print(f"\n📍 Location: {result['area_name'].replace('_', ' ').title()}")
-    print(f"📏 Land Size: {result['num_perches']} perch(es)")
+    print(f"\nLocation: {result['area_name'].replace('_', ' ').title()}")
+    print(f"Land Size: {result['num_perches']} perch(es)")
     
-    print(f"\n📅 TIMELINE:")
+    print(f"\nTIMELINE:")
     print(f"   Purchase Year: {result['purchase_year']}")
     print(f"   Selling Year: {result['sell_year']}")
     print(f"   Holding Period: {result['holding_period_years']} years")
     
-    print(f"\n💰 INVESTMENT DETAILS:")
+    print(f"\nINVESTMENT DETAILS:")
     print(f"   Purchase Price per Perch: Rs. {result['purchase_price']:,.2f}")
     print(f"   Total Investment: Rs. {result['total_investment']:,.2f}")
     
-    print(f"\n📈 PROJECTED RETURNS:")
+    print(f"\nPROJECTED RETURNS:")
     print(f"   Predicted Selling Price per Perch: Rs. {result['predicted_price']:,.2f}")
     print(f"   Total Return: Rs. {result['total_return']:,.2f}")
     print(f"   Estimated Profit: Rs. {result['profit']:,.2f}")
@@ -436,30 +436,30 @@ def print_investment_report(result):
     print(f"   CAGR: {result['cagr']:.2f}% per year")
     
     if result['profit_lower'] and result['profit_upper']:
-        print(f"\n📊 {int(CONFIDENCE_LEVEL*100)}% CONFIDENCE INTERVAL:")
+        print(f"\n{int(CONFIDENCE_LEVEL*100)}% CONFIDENCE INTERVAL:")
         print(f"   Profit Range: Rs. {result['profit_lower']:,.2f} to Rs. {result['profit_upper']:,.2f}")
         print(f"   ROI Range: {result['roi_lower']:.2f}% to {result['roi_upper']:.2f}%")
     
     if result['is_extrapolation']:
         years_beyond = result['extrapolation_years']
-        print(f"\n⚠️  EXTRAPOLATION WARNING:")
+        print(f"\nWARNING - EXTRAPOLATION:")
         print(f"   This prediction extends {years_beyond} years beyond training data (2024)")
         print(f"   Reliability Score: {result['reliability_score']}%")
         
         if years_beyond >= 20:
-            print(f"\n💡 LONG-TERM INVESTMENT CONSIDERATIONS (20+ years):")
-            print(f"   • Economic cycles: Multiple recessions/booms expected")
-            print(f"   • Infrastructure: Major projects may alter land values")
-            print(f"   • Policy changes: Zoning, taxes, regulations unpredictable")
-            print(f"   • Market disruptions: Technology, climate, demographics")
-            print(f"\n   📋 RECOMMENDATION:")
+            print(f"\nLONG-TERM INVESTMENT CONSIDERATIONS (20+ years):")
+            print(f"   \u2022 Economic cycles: Multiple recessions/booms expected")
+            print(f"   \u2022 Infrastructure: Major projects may alter land values")
+            print(f"   \u2022 Policy changes: Zoning, taxes, regulations unpredictable")
+            print(f"   \u2022 Market disruptions: Technology, climate, demographics")
+            print(f"\n   RECOMMENDATION:")
             print(f"   1. Use this as ONE data point, not the only indicator")
             print(f"   2. Re-run predictions every 2-3 years with updated data")
             print(f"   3. Consult local real estate experts and urban planners")
             print(f"   4. Consider worst-case scenarios (confidence interval lower bound)")
             print(f"   5. Build in safety margins (assume 20-30% lower returns)")
         elif years_beyond >= 10:
-            print(f"\n   💡 RECOMMENDATION: Re-check predictions every 2-3 years")
+            print(f"\n   RECOMMENDATION: Re-check predictions every 2-3 years")
             print(f"      Retrain model annually with new data for better accuracy")
         else:
             print(f"   Consider this a reasonable estimate with moderate uncertainty")
@@ -471,7 +471,7 @@ def interactive_cli():
     """Interactive command-line interface for predictions"""
     
     print("\n" + "="*80)
-    print("🏡 KATUNAYAKE LAND PRICE PREDICTOR")
+    print("KATUNAYAKE LAND PRICE PREDICTOR")
     print("="*80)
     
     try:
@@ -489,15 +489,15 @@ def interactive_cli():
             choice = input("\nEnter your choice (1-3): ").strip()
             
             if choice == "3":
-                print("\n👋 Thank you for using Land Price Predictor!")
+                print("\nThank you for using Land Price Predictor!")
                 break
             
             if choice not in ["1", "2"]:
-                print("❌ Invalid choice. Please enter 1, 2, or 3.")
+                print("ERROR: Invalid choice. Please enter 1, 2, or 3.")
                 continue
             
             # Get area input
-            print("\n📍 SELECT AREA:")
+            print("\nSELECT AREA:")
             for idx, area in enumerate(AREA_LIST):
                 print(f"  {idx} → {AREA_NAMES[idx]}")
             
@@ -506,27 +506,27 @@ def interactive_cli():
                     area_idx = int(input("\nEnter area number (0-4): "))
                     if 0 <= area_idx < len(AREA_LIST):
                         break
-                    print(f"❌ Please enter a number between 0 and {len(AREA_LIST)-1}")
+                    print(f"ERROR: Please enter a number between 0 and {len(AREA_LIST)-1}")
                 except ValueError:
-                    print("❌ Invalid input. Please enter a number.")
+                    print("ERROR: Invalid input. Please enter a number.")
             
             if choice == "1":
                 # Price prediction only
                 while True:
                     try:
-                        predict_year = int(input(f"\n📅 Enter prediction year ({START_YEAR} onwards): "))
+                        predict_year = int(input(f"\nEnter prediction year ({START_YEAR} onwards): "))
                         if predict_year >= START_YEAR:
                             break
-                        print(f"❌ Year must be {START_YEAR} or later")
+                        print(f"ERROR: Year must be {START_YEAR} or later")
                     except ValueError:
-                        print("❌ Invalid input. Please enter a valid year.")
+                        print("ERROR: Invalid input. Please enter a valid year.")
                 
                 # Make prediction
                 result = predictor.predict_price(area_idx, predict_year)
                 print_prediction_report(result)
                 
                 # Ask to plot
-                plot_choice = input("\n📊 Generate visualization? (y/n): ").strip().lower()
+                plot_choice = input("\nGenerate visualization? (y/n): ").strip().lower()
                 if plot_choice == 'y':
                     predictor.plot_prediction(area_idx, predict_year)
             
@@ -534,39 +534,39 @@ def interactive_cli():
                 # Investment analysis
                 while True:
                     try:
-                        purchase_price = float(input("\n💰 Enter purchase price per perch (Rs.): "))
+                        purchase_price = float(input("\nEnter purchase price per perch (Rs.): "))
                         if purchase_price > 0:
                             break
-                        print("❌ Price must be positive")
+                        print("ERROR: Price must be positive")
                     except ValueError:
-                        print("❌ Invalid input. Please enter a number.")
+                        print("ERROR: Invalid input. Please enter a number.")
                 
                 while True:
                     try:
-                        purchase_year = int(input(f"📅 Enter purchase year ({START_YEAR}-{CURRENT_YEAR + 2}): "))
+                        purchase_year = int(input(f"Enter purchase year ({START_YEAR}-{CURRENT_YEAR + 2}): "))
                         if START_YEAR <= purchase_year <= CURRENT_YEAR + 2:
                             break
-                        print(f"❌ Year must be between {START_YEAR} and {CURRENT_YEAR + 2}")
+                        print(f"ERROR: Year must be between {START_YEAR} and {CURRENT_YEAR + 2}")
                     except ValueError:
-                        print("❌ Invalid input.")
+                        print("ERROR: Invalid input.")
                 
                 while True:
                     try:
-                        sell_year = int(input(f"📅 Enter selling year (after {purchase_year}): "))
+                        sell_year = int(input(f"Enter selling year (after {purchase_year}): "))
                         if sell_year > purchase_year:
                             break
-                        print(f"❌ Year must be after {purchase_year}")
+                        print(f"ERROR: Year must be after {purchase_year}")
                     except ValueError:
-                        print("❌ Invalid input.")
+                        print("ERROR: Invalid input.")
                 
                 while True:
                     try:
-                        num_perches = float(input("📏 Enter number of perches: "))
+                        num_perches = float(input("Enter number of perches: "))
                         if num_perches > 0:
                             break
-                        print("❌ Number of perches must be positive")
+                        print("ERROR: Number of perches must be positive")
                     except ValueError:
-                        print("❌ Invalid input.")
+                        print("ERROR: Invalid input.")
                 
                 # Calculate investment returns
                 result = predictor.calculate_investment_return(
@@ -575,13 +575,13 @@ def interactive_cli():
                 print_investment_report(result)
             
             # Ask to continue
-            continue_choice = input("\n🔄 Make another prediction? (y/n): ").strip().lower()
+            continue_choice = input("\nMake another prediction? (y/n): ").strip().lower()
             if continue_choice != 'y':
-                print("\n👋 Thank you for using Land Price Predictor!")
+                print("\nThank you for using Land Price Predictor!")
                 break
     
     except Exception as e:
-        print(f"\n❌ ERROR: {str(e)}")
+        print(f"\nERROR: {str(e)}")
         print("\nPlease ensure:")
         print("  1. You have run train_model.py first")
         print("  2. Models directory exists with trained model files")

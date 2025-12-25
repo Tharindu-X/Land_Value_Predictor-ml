@@ -75,7 +75,7 @@ def split_data(X, y, df, cutoff_year=TRAIN_CUTOFF_YEAR):
     y_train = y[train_mask]
     y_test = y[~train_mask]
     
-    print(f"\n📊 Train/Test Split:")
+    print(f"\nTrain/Test Split:")
     print(f"   Training: {len(X_train)} samples (years ≤ {cutoff_year})")
     print(f"   Testing:  {len(X_test)} samples (years > {cutoff_year})")
     
@@ -183,7 +183,7 @@ def print_results(results):
     """Print formatted model comparison results"""
     
     print("\n" + "="*80)
-    print("📊 MODEL COMPARISON RESULTS")
+    print("MODEL COMPARISON RESULTS")
     print("="*80)
     
     # Create comparison table
@@ -206,7 +206,7 @@ def print_results(results):
     best_metrics = results[best_name]
     
     print("\n" + "="*80)
-    print(f"✅ BEST MODEL: {best_name}")
+    print(f"BEST MODEL: {best_name}")
     print("="*80)
     print(f"Test MAE  : Rs. {best_metrics['test_mae']:,.2f}")
     print(f"Test RMSE : Rs. {best_metrics['test_rmse']:,.2f}")
@@ -227,7 +227,7 @@ def analyze_by_area(y_test, predictions, df, test_mask):
     test_df["pct_error"] = (test_df["abs_error"] / test_df["price"]) * 100
     
     print("\n" + "="*80)
-    print("📍 PREDICTION ACCURACY BY AREA")
+    print("PREDICTION ACCURACY BY AREA")
     print("="*80)
     
     area_analysis = []
@@ -274,16 +274,16 @@ def save_model(model, scaler, encoder, model_name):
         f.write(f"Random State: {RANDOM_STATE}\n")
         f.write(f"CV Splits: {N_CV_SPLITS}\n")
     
-    print(f"\n💾 Model saved to: {model_path}")
-    print(f"💾 Scaler saved to: {scaler_path}")
-    print(f"💾 Encoder saved to: {encoder_path}")
-    print(f"💾 Metadata saved to: {metadata_path}")
+    print(f"\nModel saved to: {model_path}")
+    print(f"Scaler saved to: {scaler_path}")
+    print(f"Encoder saved to: {encoder_path}")
+    print(f"Metadata saved to: {metadata_path}")
 
 
 def create_visualizations(results, test_df, best_name):
     """Create and save visualization plots"""
     
-    print("\n📊 Creating visualizations...")
+    print("\nCreating visualizations...")
     
     # Set style
     plt.style.use('seaborn-v0_8-darkgrid')
@@ -324,7 +324,7 @@ def create_visualizations(results, test_df, best_name):
     plt.tight_layout()
     model_comp_path = os.path.join(REPORTS_DIR, 'model_comparison.png')
     plt.savefig(model_comp_path, dpi=300, bbox_inches='tight')
-    print(f"   ✓ Saved: {model_comp_path}")
+    print(f"   Saved: {model_comp_path}")
     plt.close()
     
     # 2. Actual vs Predicted
@@ -345,7 +345,7 @@ def create_visualizations(results, test_df, best_name):
     plt.tight_layout()
     actual_pred_path = os.path.join(REPORTS_DIR, 'actual_vs_predicted.png')
     plt.savefig(actual_pred_path, dpi=300, bbox_inches='tight')
-    print(f"   ✓ Saved: {actual_pred_path}")
+    print(f"   Saved: {actual_pred_path}")
     plt.close()
     
     # 3. Error Distribution by Area
@@ -366,21 +366,21 @@ def create_visualizations(results, test_df, best_name):
     plt.tight_layout()
     error_dist_path = os.path.join(REPORTS_DIR, 'error_distribution.png')
     plt.savefig(error_dist_path, dpi=300, bbox_inches='tight')
-    print(f"   ✓ Saved: {error_dist_path}")
+    print(f"   Saved: {error_dist_path}")
     plt.close()
     
-    print("✅ Visualizations created successfully")
+    print("Visualizations created successfully")
 
 
 def main():
     """Main training pipeline"""
     
     print("\n" + "="*80)
-    print("🏗️  KATUNAYAKE LAND PRICE PREDICTION - MODEL TRAINING")
+    print("KATUNAYAKE LAND PRICE PREDICTION - MODEL TRAINING")
     print("="*80)
     
     # Load data
-    print("\n📂 Loading and preprocessing data...")
+    print("\nLoading and preprocessing data...")
     X, y, df, scaler, encoder = load_data()
     
     # Split data
@@ -390,7 +390,7 @@ def main():
     # Get models
     models = get_models()
     
-    print(f"\n🤖 Training {len(models)} models...")
+    print(f"\nTraining {len(models)} models...")
     print("   This may take a few minutes...")
     
     # Train and evaluate all models
@@ -400,7 +400,7 @@ def main():
         model.fit(X_train, y_train)
         metrics = evaluate_model(model, X_train, X_test, y_train, y_test, name)
         results[name] = {**metrics, "model": model}
-        print("✓")
+        print("Done")
     
     # Print results
     best_name = print_results(results)
@@ -418,7 +418,7 @@ def main():
     
     # Final recommendations
     print("\n" + "="*80)
-    print("⚠️  IMPORTANT RECOMMENDATIONS")
+    print("IMPORTANT RECOMMENDATIONS")
     print("="*80)
     print("1. Model trained on data up to 2018, tested on 2019-2024")
     print("2. Predictions beyond 2024 are EXTRAPOLATIONS - use with caution")
@@ -428,7 +428,7 @@ def main():
     print("6. Consider external factors: economic conditions, infrastructure projects")
     
     print("\n" + "="*80)
-    print("✅ TRAINING COMPLETED SUCCESSFULLY!")
+    print("TRAINING COMPLETED SUCCESSFULLY!")
     print("="*80)
     print(f"\nNext steps:")
     print(f"  1. Review reports in: {REPORTS_DIR}")

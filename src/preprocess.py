@@ -28,21 +28,21 @@ def load_and_preprocess(csv_path, add_features=True):
             - encoder: Fitted OrdinalEncoder
     """
     
-    print(f"📂 Loading data from: {csv_path}")
+    print(f"Loading data from: {csv_path}")
     
     # Read CSV
     try:
         df = pd.read_csv(csv_path)
     except FileNotFoundError:
-        raise FileNotFoundError(f"❌ Data file not found: {csv_path}")
+        raise FileNotFoundError(f"ERROR: Data file not found: {csv_path}")
     except Exception as e:
-        raise Exception(f"❌ Error reading CSV: {str(e)}")
+        raise Exception(f"ERROR: Error reading CSV: {str(e)}")
     
     # Validate required columns
     required_cols = ['year', 'area_type', 'price']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"❌ Missing required columns: {missing_cols}")
+        raise ValueError(f"ERROR: Missing required columns: {missing_cols}")
     
     # Remove any duplicates
     df = df.drop_duplicates(subset=['year', 'area_type'])
@@ -50,7 +50,7 @@ def load_and_preprocess(csv_path, add_features=True):
     # Sort by time (CRITICAL for time-series)
     df = df.sort_values(["year", "area_type"]).reset_index(drop=True)
     
-    print(f"✅ Loaded {len(df)} records from {df['year'].min()} to {df['year'].max()}")
+    print(f"Loaded {len(df)} records from {df['year'].min()} to {df['year'].max()}")
     
     # Ordinal encoding based on closeness to town
     area_order = [["urban", "little_away", "2km", "10km", "30km"]]
@@ -62,7 +62,7 @@ def load_and_preprocess(csv_path, add_features=True):
     
     # Feature Engineering
     if add_features:
-        print("🔧 Engineering features...")
+        print("Engineering features...")
         
         # 1. LAG FEATURES (previous year's price per area)
         df["price_lag_1"] = df.groupby("area_type")["price"].shift(1)
@@ -111,7 +111,7 @@ def load_and_preprocess(csv_path, add_features=True):
         df["growth_rolling_3"] = df["growth_rolling_3"].fillna(0)
         df["price_volatility"] = df["price_volatility"].fillna(0)
         
-        print("✅ Features engineered successfully")
+        print("Features engineered successfully")
     
     # Select features for modeling
     feature_cols = ["years_since_1994", "area_encoded"]
@@ -136,7 +136,7 @@ def load_and_preprocess(csv_path, add_features=True):
     y = df["price"].copy()
     
     # Scale features (CRITICAL for model performance)
-    print("📊 Scaling features...")
+    print("Scaling features...")
     scaler = StandardScaler()
     X_scaled = pd.DataFrame(
         scaler.fit_transform(X),
@@ -144,7 +144,7 @@ def load_and_preprocess(csv_path, add_features=True):
         index=X.index
     )
     
-    print(f"✅ Final feature set: {len(X_scaled.columns)} features")
+    print(f"Final feature set: {len(X_scaled.columns)} features")
     
     return X_scaled, y, df, scaler, encoder
 
@@ -182,7 +182,7 @@ def detect_outliers(df, column="price", method="iqr", threshold=1.5):
         raise ValueError("Method must be 'iqr' or 'zscore'")
     
     n_outliers = df["is_outlier"].sum()
-    print(f"🔍 Detected {n_outliers} outliers using {method.upper()} method")
+    print(f"Detected {n_outliers} outliers using {method.upper()} method")
     
     return df
 
@@ -245,7 +245,7 @@ if __name__ == "__main__":
         summary = get_data_summary(df)
         
         print("\n" + "="*70)
-        print("📊 DATA SUMMARY")
+        print("DATA SUMMARY")
         print("="*70)
         print(f"Total Records    : {summary['total_records']}")
         print(f"Year Range       : {summary['year_range'][0]} - {summary['year_range'][1]}")
@@ -261,7 +261,7 @@ if __name__ == "__main__":
         
         # Detect outliers
         print("\n" + "="*70)
-        print("🔍 OUTLIER DETECTION")
+        print("OUTLIER DETECTION")
         print("="*70)
         df_with_outliers = detect_outliers(df, column="price", method="iqr")
         outliers = df_with_outliers[df_with_outliers["is_outlier"] == True]
@@ -274,16 +274,16 @@ if __name__ == "__main__":
         
         # Show first few rows
         print("\n" + "="*70)
-        print("📋 SAMPLE DATA (First 10 rows)")
+        print("SAMPLE DATA (First 10 rows)")
         print("="*70)
         print(df[["year", "area_type", "price", "years_since_1994", "area_encoded"]].head(10).to_string(index=False))
         
         print("\n" + "="*70)
-        print("✅ PREPROCESSING COMPLETED SUCCESSFULLY")
+        print("PREPROCESSING COMPLETED SUCCESSFULLY")
         print("="*70)
         
     except Exception as e:
-        print(f"\n❌ ERROR: {str(e)}")
+        print(f"\nERROR: {str(e)}")
         print("\nPlease ensure:")
         print("  1. CSV file exists at the correct path")
         print("  2. CSV has columns: year, area_type, price")
