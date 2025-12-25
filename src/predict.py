@@ -18,7 +18,6 @@ from preprocess import load_and_preprocess
 START_YEAR = 1994
 DATA_MAX_YEAR = 2024
 CURRENT_YEAR = 2025  # Update this annually
-MAX_PREDICTION_YEARS = 10
 CONFIDENCE_LEVEL = 0.90
 
 # Paths
@@ -98,9 +97,17 @@ class LandPricePredictor:
         # Years beyond training data
         years_beyond = max(0, predict_year - DATA_MAX_YEAR)
         
-        # Uncertainty calculation
+        # Uncertainty calculation with aggressive scaling for long-term predictions
         base_uncertainty = volatility * 1.645  # 90% CI
-        extrapolation_penalty = 0.05 * years_beyond
+        
+        # Exponential penalty for far-future predictions (realistic for real estate)
+        if years_beyond <= 5:
+            extrapolation_penalty = 0.03 * years_beyond  # Modest increase for near-term
+        elif years_beyond <= 10:
+            extrapolation_penalty = 0.15 + 0.05 * (years_beyond - 5)  # Medium increase
+        else:
+            # For 10+ years: Significant uncertainty (common in 20+ year holdings)
+            extrapolation_penalty = 0.40 + 0.08 * (years_beyond - 10)
         
         total_uncertainty = base_uncertainty + extrapolation_penalty
         
@@ -135,11 +142,12 @@ class LandPricePredictor:
         if predict_year < START_YEAR:
             raise ValueError(f"Year must be >= {START_YEAR}")
         
-        if predict_year > DATA_MAX_YEAR + MAX_PREDICTION_YEARS:
-            raise ValueError(
-                f"Cannot predict more than {MAX_PREDICTION_YEARS} years beyond {DATA_MAX_YEAR}. "
-                f"Maximum year: {DATA_MAX_YEAR + MAX_PREDICTION_YEARS}"
-            )
+        # Warning for far-future predictions (no hard limit)
+        if predict_year > DATA_MAX_YEAR + 15:
+            print(f"\n⚠️  EXTREME EXTRAPOLATION WARNING:")
+            print(f"   Predicting {predict_year - DATA_MAX_YEAR} years beyond training data.")
+            print(f"   Accuracy significantly decreases with longer time horizons.")
+            print(f"   Use these predictions with extreme caution!\n")
         
         # Get latest price for this area
         area_name = AREA_LIST[area_encoded]
@@ -433,10 +441,28 @@ def print_investment_report(result):
         print(f"   ROI Range: {result['roi_lower']:.2f}% to {result['roi_upper']:.2f}%")
     
     if result['is_extrapolation']:
-        print(f"\n⚠️  WARNING:")
-        print(f"   This prediction extends {result['extrapolation_years']} years beyond training data")
+        years_beyond = result['extrapolation_years']
+        print(f"\n⚠️  EXTRAPOLATION WARNING:")
+        print(f"   This prediction extends {years_beyond} years beyond training data (2024)")
         print(f"   Reliability Score: {result['reliability_score']}%")
-        print(f"   Consider this a rough estimate - actual returns may vary significantly")
+        
+        if years_beyond >= 20:
+            print(f"\n💡 LONG-TERM INVESTMENT CONSIDERATIONS (20+ years):")
+            print(f"   • Economic cycles: Multiple recessions/booms expected")
+            print(f"   • Infrastructure: Major projects may alter land values")
+            print(f"   • Policy changes: Zoning, taxes, regulations unpredictable")
+            print(f"   • Market disruptions: Technology, climate, demographics")
+            print(f"\n   📋 RECOMMENDATION:")
+            print(f"   1. Use this as ONE data point, not the only indicator")
+            print(f"   2. Re-run predictions every 2-3 years with updated data")
+            print(f"   3. Consult local real estate experts and urban planners")
+            print(f"   4. Consider worst-case scenarios (confidence interval lower bound)")
+            print(f"   5. Build in safety margins (assume 20-30% lower returns)")
+        elif years_beyond >= 10:
+            print(f"\n   💡 RECOMMENDATION: Re-check predictions every 2-3 years")
+            print(f"      Retrain model annually with new data for better accuracy")
+        else:
+            print(f"   Consider this a reasonable estimate with moderate uncertainty")
     
     print("\n" + "="*80)
 
@@ -488,10 +514,10 @@ def interactive_cli():
                 # Price prediction only
                 while True:
                     try:
-                        predict_year = int(input(f"\n📅 Enter prediction year ({START_YEAR}-{DATA_MAX_YEAR + MAX_PREDICTION_YEARS}): "))
-                        if START_YEAR <= predict_year <= DATA_MAX_YEAR + MAX_PREDICTION_YEARS:
+                        predict_year = int(input(f"\n📅 Enter prediction year ({START_YEAR} onwards): "))
+                        if predict_year >= START_YEAR:
                             break
-                        print(f"❌ Year must be between {START_YEAR} and {DATA_MAX_YEAR + MAX_PREDICTION_YEARS}")
+                        print(f"❌ Year must be {START_YEAR} or later")
                     except ValueError:
                         print("❌ Invalid input. Please enter a valid year.")
                 
@@ -526,10 +552,10 @@ def interactive_cli():
                 
                 while True:
                     try:
-                        sell_year = int(input(f"📅 Enter selling year ({purchase_year+1}-{DATA_MAX_YEAR + MAX_PREDICTION_YEARS}): "))
-                        if purchase_year < sell_year <= DATA_MAX_YEAR + MAX_PREDICTION_YEARS:
+                        sell_year = int(input(f"📅 Enter selling year (after {purchase_year}): "))
+                        if sell_year > purchase_year:
                             break
-                        print(f"❌ Year must be after {purchase_year} and before {DATA_MAX_YEAR + MAX_PREDICTION_YEARS}")
+                        print(f"❌ Year must be after {purchase_year}")
                     except ValueError:
                         print("❌ Invalid input.")
                 
