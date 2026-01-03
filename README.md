@@ -2,11 +2,15 @@
 
 Machine learning system for predicting land prices in Katunayake, Sri Lanka using time-series regression with multiple ML algorithms.
 
-## Features
+## 🌟 Features
 
+- **Modern Web Interface** - Beautiful, responsive web application with interactive forms
+- **Command Line Interface** - Traditional terminal-based predictions
 - Time-series land price prediction (1994-present)
+- Investment analysis with ROI, CAGR, and profit projections
 - Multiple ML models: Linear Regression, Ridge, Lasso, Random Forest, Gradient Boosting, Extra Trees
 - Advanced feature engineering
+- 90% confidence intervals for predictions
 - 5 geographic zones: urban, little_away, 2km, 10km, 30km
 - Cross-validation and model comparison
 
@@ -68,24 +72,59 @@ python train_model.py
 - Performance reports in `reports/` directory
 - Model metadata in `models/model_metadata.txt`
 
-### 5. Make Predictions
+### 5. Run the Application
+
+**Option A: Web Application (Recommended)** ⭐
 
 ```bash
+python app.py
+```
+
+Then open your browser and navigate to: **http://127.0.0.1:5000**
+
+**Features:**
+- Modern, responsive web interface
+- Interactive forms with real-time validation
+- Beautiful result displays with charts and cards
+- Price prediction and investment analysis
+- Works on desktop, tablet, and mobile
+
+**Option B: Command Line Interface**
+
+```bash
+cd src
 python predict.py
 ```
 
 **Example:**
 ```
-Enter year (1994-2030): 2025
-Select area type:
-  1. urban
-  2. little_away
-  3. 2km
-  4. 10km
-  5. 30km
-Enter choice (1-5): 1
+SELECT ANALYSIS TYPE:
+  1. Price Prediction Only
+  2. Investment Analysis (Buy & Sell)
+  3. Exit
 
-Predicted Price: LKR 1,234,567
+Enter your choice (1-3): 
+
+SELECT AREA:
+  0 → Urban (City Center)
+  1 → Little Away from City
+  2 → 2km from City
+  3 → 10km from City
+  4 → 30km from City
+
+Enter area number (0-4): 
+Enter prediction year (1994 onwards): 
+
+================================================================================
+LAND PRICE PREDICTION REPORT
+================================================================================
+
+Location: 
+Prediction Year: 
+Predicted Price per Perch: 
+90% Confidence Interval:
+   Lower Bound: 
+   Upper Bound: 
 ```
 
 ---
@@ -94,6 +133,14 @@ Predicted Price: LKR 1,234,567
 
 ```
 Land_Value_Predictor-ml/
+│
+├── app.py                             # Flask web application 
+├── fontend/                           # Web interface files 
+│   ├── index.html                     # Main webpage
+│   ├── css/
+│   │   └── style.css                  # Modern styling
+│   └── js/
+│       └── script.js                  # Interactive features
 │
 ├── data/
 │   └── katunayake_land_prices.csv    # Dataset (1994-2024)
@@ -109,10 +156,12 @@ Land_Value_Predictor-ml/
 ├── src/
 │   ├── preprocess.py                  # Data preprocessing
 │   ├── train_model.py                 # Model training
-│   └── predict.py                     # Prediction interface
+│   └── predict.py                     # Prediction engine (CLI & API)
 │
 ├── requirements.txt                   # Dependencies
-└── README.md
+├── README.md                          # This file
+├── WEB_README.md                      # Web app documentation 
+└── HOW_TO_RUN_WEBSITE.md             # Quick start guide 
 ```
 
 ---
@@ -126,12 +175,88 @@ scikit-learn>=1.0.0
 joblib>=1.0.0
 matplotlib>=3.4.0
 seaborn>=0.11.0
+flask>=2.0.0           # For web application 
+flask-cors>=3.0.10     # For API support 
 ```
 
 Install all at once:
 ```bash
 pip install -r requirements.txt
 ```
+
+---
+
+## 🚀 Usage
+
+### Web Application (Recommended)
+
+1. Start the server:
+   ```bash
+   python app.py
+   ```
+
+2. Open in browser: http://127.0.0.1:5000
+
+3. Choose analysis type:
+   - **Price Prediction Only**: Get predicted land prices for any year
+   - **Investment Analysis**: Calculate ROI, profit, and CAGR for land investments
+
+4. Fill in the form and submit
+
+5. View beautiful, interactive results with:
+   - Predicted prices
+   - Confidence intervals
+   - Reliability scores
+   - Historical context
+   - Investment returns
+
+### Command Line Interface
+
+1. Navigate to src directory:
+   ```bash
+   cd src
+   ```
+
+2. Run predictor:
+   ```bash
+   python predict.py
+   ```
+
+3. Follow the interactive prompts
+
+---
+
+## 📊 Analysis Types
+
+### 1. Price Prediction Only
+- Select area and year
+- Get predicted price per perch
+- View 90% confidence interval
+- See reliability score
+- Compare with historical data
+
+### 2. Investment Analysis
+- Input purchase details (price, year, land size)
+- Enter projected selling year
+- Get comprehensive analysis:
+  - Total investment and returns
+  - Estimated profit
+  - ROI (Return on Investment)
+  - CAGR (Compound Annual Growth Rate)
+  - Confidence intervals for projections
+  - Extrapolation warnings
+
+---
+
+## 🎨 Web Interface Features
+
+- **Modern Design**: Gradient backgrounds, smooth animations, professional styling
+- **Responsive Layout**: Works on desktop, tablet, and mobile devices
+- **Interactive Forms**: Real-time validation and error handling
+- **Visual Results**: Color-coded cards with icons and charts
+- **Warning Systems**: Clear indicators for extrapolated predictions
+- **Confidence Intervals**: Visual representation of prediction ranges
+- **Easy Sharing**: Perfect for presentations and stakeholder reports
 
 ---
 
@@ -174,6 +299,32 @@ pip install -r requirements.txt
 
 ## Troubleshooting
 
+### Web Application Issues
+
+**Port Already in Use:**
+```bash
+# Stop other Flask apps or change port in app.py
+# Look for: app.run(debug=True, host='127.0.0.1', port=5000)
+# Change 5000 to 5001 or 8080
+```
+
+**Models Not Found:**
+```bash
+# Train models first
+cd src
+python train_model.py
+cd ..
+python app.py
+```
+
+**Browser Not Opening:**
+- Manually open: http://127.0.0.1:5000 or http://localhost:5000
+- Check firewall settings
+
+**Styling Issues:**
+- Clear browser cache (Ctrl+Shift+Delete)
+- Hard refresh (Ctrl+F5)
+
 ### Virtual Environment Issues
 
 **Windows PowerShell execution policy error:**
@@ -202,6 +353,9 @@ pip install --upgrade -r requirements.txt
 cd src
 python train_model.py
 ```
+
+
+**Both interfaces use the same prediction engine!**
 
 ---
 
